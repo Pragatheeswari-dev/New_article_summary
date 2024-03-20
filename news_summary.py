@@ -1,21 +1,23 @@
 from langchain.document_loaders import UnstructuredURLLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from transformers import pipeline, BartTokenizerFast
+# from transformers import pipeline, BartTokenizerFast
 from transformers import pipeline
-from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
+# from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 
-
-tokenizer = AutoTokenizer.from_pretrained("facebook/bart-large-cnn")
-model = AutoModelForSeq2SeqLM.from_pretrained("facebook/bart-large-cnn")
-
+# print("tokenizer calling...")
+# tokenizer = AutoTokenizer.from_pretrained("facebook/bart-large-cnn")
+# print("model calling....")
+# model = AutoModelForSeq2SeqLM.from_pretrained("facebook/bart-large-cnn")
+# print("model calling completed...")
 
 def get_summary(final_text):
-  pipe_sum = pipeline(
-        'summarization',
-        model = model,
-        tokenizer = tokenizer
-        )
-  result = pipe_sum(final_text,
+  # pipe_sum = pipeline(
+  #       'summarization',
+  #       model = model,
+  #       tokenizer = tokenizer
+  #       )
+  summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
+  result = summarizer(final_text,
                     max_length = 1024, 
                     min_length = 100,
                     do_sample=False,
