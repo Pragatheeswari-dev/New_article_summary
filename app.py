@@ -5,70 +5,42 @@ from transformers import pipeline
 import os,time
 import streamlit as st
 
-st.title("News Article Summary Tool 📈")
-st.sidebar.title("News Article URLs")
-
-i=0
-urls = []
-url = st.sidebar.text_input(f"URL {i+1}")
-# print("URL: ", type(url)," ", url)
-urls.append(url)
-print("URL: ", type(urls)," ", urls)
-process_url_clicked = st.sidebar.button("Process URLs")
+# st.title("News Article Summarizer 📰")
+st.sidebar.title("Uncover Insights, Save Time")
+# st.caption('This is a string that explains something above.')
+st.sidebar.caption('Provide the _news article_ :blue[URL links] below and emojis :sunglasses:')
 
 
-def get_summary(final_text):
-  # pipe_sum = pipeline(
-  #       'summarization',
-  #       model = model,
-  #       tokenizer = tokenizer
-  #       )
-  #main_placeholder = st.empty()
-  #main_placeholder.text("Model Loading...Started...✅✅✅")
-  summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
-  main_placeholder.text("Generating...Summary...✅✅✅")
-  result = summarizer(final_text,
-                    max_length = 1024, 
-                    min_length = 100,
-                    do_sample=False,
-                    truncation=True)
-  result1 = result[0]['summary_text']
-  
-  return result1
+# Set up pipeline for summarization
+summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
 
-def text_preprocessing(u):
-  loaders = UnstructuredURLLoader(u)
-  data = loaders.load()
-  print(len(data))
-  text_splitter = RecursiveCharacterTextSplitter(
-      chunk_size=1000,
-      chunk_overlap=200
-      )
-  # As data is of type documents we can directly use split_documents over split_text in order to get the chunks.
-  docs = text_splitter.split_documents(data)
-  print(len(docs))
-  final_texts = ""
-  for i in range(0,len(docs)):
-    #print(i," : ", input_text[i].page_content)
-    final_texts = final_texts + docs[i].page_content
-    #print("final_texts : ", final_texts)
-  return final_texts
+# Define UI layout
+st.title("News Article Summarizer 📰")
+st.write("Uncover Insights, Save Time ⏳")
+st.divider()
 
-if process_url_clicked:
-    if url.startswith("http"):
-        main_placeholder = st.empty()
-        main_placeholder.text("Data Loading...Started...✅✅✅")
-        final_text_1 = text_preprocessing(urls)
-        main_placeholder.text("Embedding Vector Started Building...✅✅✅")
-        # time.sleep(2)
+# Text input for user to enter URL(s)
+url_input = st.text_area("URL(s)", height=100, help="Enter one or more news article URLs separated by line breaks.")
 
-        # getsummary_clicked = st.button("Get Summary")
-        # print("final_text_1 before cllick: ", final_text_1)
+# Function to summarize articles
+def summarize_articles(urls):
+    summaries = []
+    for url in urls.split("\n"):
+        if url.strip() != "":
+            try:
+                # Perform summarization
+                article_summary = summarizer(url, max_length=1024, min_length=100, do_sample=False)[0]["summary_text"]
+                summaries.append((url, article_summary))
+            except Exception as e:
+                st.error(f"Error summarizing article from {url}: {e}")
+    return summaries
 
-        # if getsummary_clicked:
-        # print("final_text_1: ", final_text_1)
-        main_placeholder.text("Model Loading...Started...✅✅✅")
-        summary = get_summary(final_text_1)
-        st.header("Summary")
-        print("Summary 1: ",summary)
+# Button to trigger summarization
+if st.button("Summarize"):
+    # Split URLs by line breaks and summarize each article
+    summaries = summarize_articles(url_input)
+    
+    # Display article summaries
+    for url, summary in summaries:
+        st.subheader(f"Summary for article from {url}")
         st.write(summary)
