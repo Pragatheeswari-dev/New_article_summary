@@ -16,8 +16,8 @@ from datetime import datetime
 import dateutil.parser as dparser
 
 from dotenv import load_dotenv
-load_dotenv()  # take environment variables from .env (especially openai api key)
-# os.environ['OPENAI_API_KEY'] = st.secrets['OPENAI_API_KEY']
+# load_dotenv()  # take environment variables from .env (especially openai api key)
+os.environ['OPENAI_API_KEY'] = st.secrets['OPENAI_API_KEY']
 
 import requests
 from bs4 import BeautifulSoup
