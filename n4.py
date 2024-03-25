@@ -60,9 +60,13 @@ st.sidebar.write(
         """
     )
 
-model = TFBartForConditionalGeneration.from_pretrained("facebook/bart-large-cnn")
-tokenizer = BartTokenizer.from_pretrained('facebook/bart-large-cnn')
-summarizer = pipeline("summarization", model=model, tokenizer=tokenizer)
+@st.cache_resource  # 👈 Add the caching decorator
+def load_model():
+   model = TFBartForConditionalGeneration.from_pretrained("facebook/bart-large-cnn")
+   tokenizer = BartTokenizer.from_pretrained('facebook/bart-large-cnn')
+   return pipeline("summarization", model=model, tokenizer=tokenizer)
+
+summarizer = load_model()
 
 def get_summary(final_text,summarizer):
    
@@ -103,8 +107,8 @@ def text_preprocessing(u):
 default_urls = [  
     "https://www.governmentnews.com.au/queensland-says-no-to-new-olympic-stadium/",
     "https://www.news.com.au/entertainment/celebrity-life/celebrity-deaths/ive-sadly-diedbestselling-author-announces-own-death/news-story/f7b145a9070d832b43946a126cfc3e4e",
-    "https://www.pm.gov.au/media/parents-and-economy-benefit-latest-reform",
-    "https://www.news.com.au/world/coronavirus/health/wear-a-mask-nsw-health-responds-to-a-rise-in-cases-in-light-of-new-subvariant-strains/news-story/90cad04f2a329d8730871c00b3dd00cc"
+   #  "https://www.pm.gov.au/media/parents-and-economy-benefit-latest-reform",
+   #  "https://www.news.com.au/world/coronavirus/health/wear-a-mask-nsw-health-responds-to-a-rise-in-cases-in-light-of-new-subvariant-strains/news-story/90cad04f2a329d8730871c00b3dd00cc"
 ]
 
 # url_input = st.text_area("URL(s)", height=200, help="Enter one or more news article URLs separated by line breaks.")
