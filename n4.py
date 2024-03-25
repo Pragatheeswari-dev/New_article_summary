@@ -1,5 +1,6 @@
 from langchain.document_loaders import UnstructuredURLLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter, CharacterTextSplitter
+from transformers import BartTokenizer, BartForConditionalGeneration, BartConfig
 # from transformers import pipeline, BartTokenizerFast
 from transformers import pipeline
 
@@ -16,8 +17,8 @@ from datetime import datetime
 import dateutil.parser as dparser
 
 from dotenv import load_dotenv
-# load_dotenv()  # take environment variables from .env (especially openai api key)
-os.environ['OPENAI_API_KEY'] = st.secrets['OPENAI_API_KEY']
+load_dotenv()  # take environment variables from .env (especially openai api key)
+# os.environ['OPENAI_API_KEY'] = st.secrets['OPENAI_API_KEY']
 
 import requests
 from bs4 import BeautifulSoup
@@ -59,11 +60,14 @@ st.sidebar.write(
         """
     )
 
+model = BartForConditionalGeneration.from_pretrained("facebook/bart-large-cnn")
+tokenizer = BartTokenizer.from_pretrained('facebook/bart-large-cnn')
+summarizer = pipeline("summarization", model=model, tokenizer=tokenizer)
 
-def get_summary(final_text):
+def get_summary(final_text,summarizer):
    
-   main_placeholder.text("Embedding Vector Started Building...✅✅✅")
-   summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
+   # main_placeholder.text("Embedding Vector Started Building...✅✅✅")
+   # summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
    
    main_placeholder.text("Generating...Summary...✅✅✅")
    result = summarizer(final_text,
@@ -176,7 +180,7 @@ if st.button("Process URL"):
       r = text_preprocessing(urls[i])
       #main_placeholder.text("Embedding Vector Started Building...✅✅✅")
       main_placeholder.text("Model Loading...Started...✅✅✅")
-      summary = get_summary(r)
+      summary = get_summary(r,summarizer)
       st.write(f"Title: {title}")
       st.write(f"Author: {author}")
       st.write(f"Date: {date}")
