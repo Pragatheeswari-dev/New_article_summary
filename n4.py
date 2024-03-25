@@ -1,6 +1,6 @@
 from langchain.document_loaders import UnstructuredURLLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter, CharacterTextSplitter
-from transformers import BartTokenizer, BartForConditionalGeneration, BartConfig
+from transformers import BartTokenizer, TFBartForConditionalGeneration, BartConfig
 # from transformers import pipeline, BartTokenizerFast
 from transformers import pipeline
 
@@ -60,7 +60,7 @@ st.sidebar.write(
         """
     )
 
-model = BartForConditionalGeneration.from_pretrained("facebook/bart-large-cnn")
+model = TFBartForConditionalGeneration.from_pretrained("facebook/bart-large-cnn")
 tokenizer = BartTokenizer.from_pretrained('facebook/bart-large-cnn')
 summarizer = pipeline("summarization", model=model, tokenizer=tokenizer)
 
