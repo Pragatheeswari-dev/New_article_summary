@@ -11,3 +11,4 @@ OpenAI
 langchain-community
 transformers
 langchain_openai
+tensorflow
