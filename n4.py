@@ -32,28 +32,30 @@ st.write("  **Uncover Insights, Save Time ⏳**")
 
 
 # st.sidebar.title("News Article URLs")
-st.sidebar.title("About the News Article Summarizer:")
+st.sidebar.title("About:")
 st.sidebar.write(
         """
-        The demo tool designed to help you quickly extract key insights and main points from news articles. 
-        It is implemented using LangChain framework.
-         - load the text and split into chunks of desired size. 
-         - 
-         By simply providing the URL(s) of the articles you want to summarize, the tool uses advanced natural language processing (NLP) techniques to generate concise summaries, saving you time and effort.
-
+        This demo tool is designed to uncover the main points and save time reading through lengthy articles. 
+         - It is implemented using *LangChain framework*. 
+         - Data from the url is loaded and splitted into desired chunks using *RecursiveCharacterTextSplitter*.
+         - To generate extractive summary, pre-trained transformer model *'bart-large-cnn'* is used.
+         - Articles were tagged using openai, *'gpt-3.5-turbo-0613'*.
+         - Title, Author Name, Date where retrived from the url using *'BeautifulSoup'* package commomly used for web scrapping.
+         
         ### Features:
-        - *Efficient Summarization*: Instantly summarize news articles with just a click of a button.
-        - *Accurate Insights*: Extract main points and key information from lengthy articles with high accuracy.
-        - *Multi-URL Support*: Summarize multiple articles at once by entering their URLs separated by line breaks.
-        - *Easy to Use*: User-friendly interface makes it simple for anyone to utilize the tool without any technical expertise.
+        - *Efficient Summarization*
+        - *Accurate Insights*
+        - *Multi-URL Support*
+        - *Easy to Use*
 
-        ### How It Works:
-        1. *Enter URL(s)*: Provide the URL(s) of the news article(s) you want to summarize.
-        2. *Generate Summary*: Click the "Summarize" button to initiate the summarization process.
-        3. *Review Results*: Read the concise summaries generated for each article and gain quick insights.
+        ### Further optimisation:
+        - with use of vector databases (ability to store and retrieve large word embeddings), LLM can be optimised for several usecases.
+            - **Community Well-being**: Summarizing public health articles to provide timely updates and recommendations for community health and safety.
+            - **Policy Development**: Analyzing and summarizing policy documents to identify key issues and trends, facilitating evidence-based decision-making.
+            - **Governance**: Summarizing news articles and reports related to government activities and public affairs to monitor public sentiment and inform policy responses.
 
-        ### Try It Now:
-        Paste the URL(s) of news articles you want to summarize in the input box and click "Summarize" to uncover the main points and save time reading through lengthy articles.
+         
+        
         """
     )
 
@@ -80,7 +82,7 @@ def text_preprocessing(u):
    loaders = UnstructuredURLLoader(u)
    data = loaders.load()
    print(len(data))
-   text_splitter = CharacterTextSplitter.from_tiktoken_encoder(
+   text_splitter = RecursiveCharacterTextSplitter(
       chunk_size=1000,
       chunk_overlap=200
       )
@@ -94,8 +96,9 @@ def text_preprocessing(u):
    return final_texts
 
 
-default_urls = [
+default_urls = [  
     "https://www.governmentnews.com.au/queensland-says-no-to-new-olympic-stadium/",
+    "https://www.news.com.au/entertainment/celebrity-life/celebrity-deaths/ive-sadly-diedbestselling-author-announces-own-death/news-story/f7b145a9070d832b43946a126cfc3e4e",
     "https://www.pm.gov.au/media/parents-and-economy-benefit-latest-reform",
     "https://www.news.com.au/world/coronavirus/health/wear-a-mask-nsw-health-responds-to-a-rise-in-cases-in-light-of-new-subvariant-strains/news-story/90cad04f2a329d8730871c00b3dd00cc"
 ]
@@ -128,6 +131,7 @@ class Tags(BaseModel):
       ..., enum=["spanish", "english", "french", "german", "italian"]
    )
    # political_tendency: str
+   style: str = Field(..., enum = ["formal","informal"])
    # style: str = Field(..., enum = ["formal","informal"])
    # title: str = Field(title)
    # author: str = Field(author) 
@@ -174,7 +178,7 @@ if st.button("Process URL"):
       main_placeholder.text("Model Loading...Started...✅✅✅")
       summary = get_summary(r)
       st.write(f"Title: {title}")
-      st.write(f"Auther: {author}")
+      st.write(f"Author: {author}")
       st.write(f"Date: {date}")
       # st.write(f"Title: {title}")
       chain = create_tagging_chain_pydantic(Tags, llm)
@@ -182,6 +186,9 @@ if st.button("Process URL"):
       # Tags.title = title
       # Tags.date = date
       # Tags.summary = summary
-      print(chain.run(summary))
+      # print(chain.run(summary))
+      # st.write(chain.run("Estoy muy enojado con vos! Te voy a dar tu merecido!"))
+      # print("r =  /n", r)
+      st.write(chain.run(r))
       st.write(f"source: {urls[i]}")
       
