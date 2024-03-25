@@ -6,9 +6,9 @@ from transformers import pipeline
 
 import os,time
 import streamlit as st
-from langchain.chains import create_tagging_chain, create_tagging_chain_pydantic
-from langchain_openai import ChatOpenAI
-from langchain_core.pydantic_v1 import BaseModel, Field
+# from langchain.chains import create_tagging_chain, create_tagging_chain_pydantic
+# from langchain_openai import ChatOpenAI
+# from langchain_core.pydantic_v1 import BaseModel, Field
 
 # def pop_default(s):
 #     s.pop('default')
@@ -16,9 +16,9 @@ import datetime
 from datetime import datetime
 import dateutil.parser as dparser
 
-from dotenv import load_dotenv
+# from dotenv import load_dotenv
 # load_dotenv()  # take environment variables from .env (especially openai api key)
-os.environ['OPENAI_API_KEY'] = st.secrets['OPENAI_API_KEY']
+# os.environ['OPENAI_API_KEY'] = st.secrets['OPENAI_API_KEY']
 
 import requests
 from bs4 import BeautifulSoup
@@ -65,6 +65,7 @@ def load_model():
    model = TFBartForConditionalGeneration.from_pretrained("facebook/bart-large-cnn")
    tokenizer = BartTokenizer.from_pretrained('facebook/bart-large-cnn')
    return pipeline("summarization", model=model, tokenizer=tokenizer)
+
 
 summarizer = load_model()
 
@@ -122,24 +123,25 @@ for url in url_input.split("\n"):
             urls.append([url])
 print("url: ", urls)
 
-llm = ChatOpenAI(temperature=0, model="gpt-3.5-turbo-0613")
+# llm = ChatOpenAI(temperature=0, model="gpt-3.5-turbo-0613")
 
-title = ""
-author = ""
-date = ""
-summary = ""
-class Tags(BaseModel):
-   sentiment: str = Field(..., enum=["happy", "neutral", "sad"])
-   aggressiveness: int = Field(
-      ...,
-      description="describes how aggressive the statement is, the higher the number the more aggressive",
-      enum=[1, 2, 3, 4, 5],
-   )
-   language: str = Field(
-      ..., enum=["spanish", "english", "french", "german", "italian"]
-   )
-   # political_tendency: str
-   style: str = Field(..., enum = ["formal","informal"])
+# title = ""
+# author = ""
+# date = ""
+# summary = ""
+# class Tags(BaseModel):
+#    sentiment: str = Field(..., enum=["happy", "neutral", "sad"])
+#    aggressiveness: int = Field(
+#       ...,
+#       description="describes how aggressive the statement is, the higher the number the more aggressive",
+#       enum=[1, 2, 3, 4, 5],
+#    )
+#    language: str = Field(
+#       ..., enum=["spanish", "english", "french", "german", "italian"]
+#    )
+#    # political_tendency: str
+#    style: str = Field(..., enum = ["formal","informal"])
+
    # style: str = Field(..., enum = ["formal","informal"])
    # title: str = Field(title)
    # author: str = Field(author) 
@@ -189,7 +191,7 @@ if st.button("Process URL"):
       st.write(f"Author: {author}")
       st.write(f"Date: {date}")
       # st.write(f"Title: {title}")
-      chain = create_tagging_chain_pydantic(Tags, llm)
+      # chain = create_tagging_chain_pydantic(Tags, llm)
       # Tags.author = author
       # Tags.title = title
       # Tags.date = date
@@ -197,6 +199,6 @@ if st.button("Process URL"):
       # print(chain.run(summary))
       # st.write(chain.run("Estoy muy enojado con vos! Te voy a dar tu merecido!"))
       # print("r =  /n", r)
-      st.write(chain.run(r))
+      # st.write(chain.run(r))
       st.write(f"source: {urls[i]}")
       
