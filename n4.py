@@ -1,10 +1,30 @@
 from langchain.document_loaders import UnstructuredURLLoader
-from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain.text_splitter import RecursiveCharacterTextSplitter, CharacterTextSplitter
 # from transformers import pipeline, BartTokenizerFast
 from transformers import pipeline
 
 import os,time
 import streamlit as st
+from langchain.chains import create_tagging_chain, create_tagging_chain_pydantic
+from langchain_openai import ChatOpenAI
+from langchain_core.pydantic_v1 import BaseModel, Field
+
+# def pop_default(s):
+#     s.pop('default')
+import datetime
+from datetime import datetime
+import dateutil.parser as dparser
+
+from dotenv import load_dotenv
+load_dotenv()  # take environment variables from .env (especially openai api key)
+# os.environ['OPENAI_API_KEY'] = st.secrets['OPENAI_API_KEY']
+
+import requests
+from bs4 import BeautifulSoup
+
+import datetime
+from datetime import datetime
+import dateutil.parser as dparser
 
 st.title("News Article Summarizer 📰")
 st.write("  **Uncover Insights, Save Time ⏳**")
@@ -60,7 +80,7 @@ def text_preprocessing(u):
    loaders = UnstructuredURLLoader(u)
    data = loaders.load()
    print(len(data))
-   text_splitter = RecursiveCharacterTextSplitter(
+   text_splitter = CharacterTextSplitter.from_tiktoken_encoder(
       chunk_size=1000,
       chunk_overlap=200
       )
@@ -91,16 +111,77 @@ for url in url_input.split("\n"):
             urls.append([url])
 print("url: ", urls)
 
+llm = ChatOpenAI(temperature=0, model="gpt-3.5-turbo-0613")
+
+title = ""
+author = ""
+date = ""
+summary = ""
+class Tags(BaseModel):
+   sentiment: str = Field(..., enum=["happy", "neutral", "sad"])
+   aggressiveness: int = Field(
+      ...,
+      description="describes how aggressive the statement is, the higher the number the more aggressive",
+      enum=[1, 2, 3, 4, 5],
+   )
+   language: str = Field(
+      ..., enum=["spanish", "english", "french", "german", "italian"]
+   )
+   # political_tendency: str
+   # style: str = Field(..., enum = ["formal","informal"])
+   # title: str = Field(title)
+   # author: str = Field(author) 
+   # date: str = Field(str(date))
+   # summary: str  = Field(summary)
+
+   # def  __init__(self):
+   #    self.sentiment = "neutral"
+   #    self.aggressiveness = 3
+   #    self.language = "english"
+   #    self.summary = summary
+   #    self.title = title
+   #    self.author = author
+   #    self.date = date
+      
+
+
 
 if st.button("Process URL"):
-    main_placeholder = st.empty()
-    # main_placeholder.text("Data Loading...Started...✅✅✅")
-    for i in range(len(urls)):
-       r = text_preprocessing(urls[i])
-    #    main_placeholder.text("Embedding Vector Started Building...✅✅✅")
-       main_placeholder.text("Model Loading...Started...✅✅✅")
-       get_summary(r)
-       st.write(f"source: {urls[i]}")
-
-
-
+   main_placeholder = st.empty()
+   # main_placeholder.text("Data Loading...Started...✅✅✅")
+   for i in range(len(urls)):
+      print("url: ", urls[i][0])
+      soup = BeautifulSoup(requests.get(urls[i][0]).content, 'html.parser')
+      t = soup.find('title')
+      title = t.get_text()
+      author1 = soup.find('meta', {'name': 'author'})
+      print("author1 = ", author1)
+      if author1 is not None:
+         author = author1["content"]
+      else:
+         author = " "
+      print("author = ", author)
+      datest = soup.find('meta', {'property': 'article:published_time'})
+      if datest is not None:
+         da = datest["content"]
+         date = dparser.parse(da,fuzzy=True)
+         date = str(date.date())
+      else:
+         date = " " 
+      print("da = ", date)
+      r = text_preprocessing(urls[i])
+      #main_placeholder.text("Embedding Vector Started Building...✅✅✅")
+      main_placeholder.text("Model Loading...Started...✅✅✅")
+      summary = get_summary(r)
+      st.write(f"Title: {title}")
+      st.write(f"Auther: {author}")
+      st.write(f"Date: {date}")
+      # st.write(f"Title: {title}")
+      chain = create_tagging_chain_pydantic(Tags, llm)
+      # Tags.author = author
+      # Tags.title = title
+      # Tags.date = date
+      # Tags.summary = summary
+      print(chain.run(summary))
+      st.write(f"source: {urls[i]}")
+      

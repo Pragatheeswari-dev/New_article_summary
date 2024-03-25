@@ -1,5 +1,5 @@
 from langchain.document_loaders import UnstructuredURLLoader
-from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain.text_splitter import RecursiveCharacterTextSplitter, CharacterTextSplitter
 # from transformers import pipeline, BartTokenizerFast
 from transformers import pipeline
 
@@ -60,7 +60,7 @@ def text_preprocessing(u):
    loaders = UnstructuredURLLoader(u)
    data = loaders.load()
    print(len(data))
-   text_splitter = RecursiveCharacterTextSplitter(
+   text_splitter = CharacterTextSplitter.from_tiktoken_encoder(
       chunk_size=1000,
       chunk_overlap=200
       )
@@ -101,6 +101,3 @@ if st.button("Process URL"):
        main_placeholder.text("Model Loading...Started...✅✅✅")
        get_summary(r)
        st.write(f"source: {urls[i]}")
-
-
-
