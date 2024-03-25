@@ -12,3 +12,4 @@ langchain-community
 transformers
 langchain_openai
 tensorflow
+tf-keras
