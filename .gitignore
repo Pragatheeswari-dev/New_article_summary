@@ -159,3 +159,10 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 .env
+main.py
+ap.py
+app_2.py
+app.py
+n2.py
+n3.py
+research/

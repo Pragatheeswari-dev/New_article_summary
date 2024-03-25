@@ -39,7 +39,7 @@ st.sidebar.write(
          - It is implemented using *LangChain framework*. 
          - Data from the url is loaded and splitted into desired chunks using *RecursiveCharacterTextSplitter*.
          - To generate extractive summary, pre-trained transformer model *'bart-large-cnn'* is used.
-         - Articles were tagged using openai, *'gpt-3.5-turbo-0613'*.
+         - Articles were *tagged (for sentiments, aggressiveness, language, style)* using openai, *'gpt-3.5-turbo-0613'*.
          - Title, Author Name, Date where retrived from the url using *'BeautifulSoup'* package commomly used for web scrapping.
          
         ### Features:
